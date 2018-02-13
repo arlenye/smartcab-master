@@ -43,8 +43,11 @@ class LearningAgent(Agent):
         #self.epsilon = self.epsilon-0.05
         
         #self.epsilon = 1/pow(self.total_trials,2) 
-        self.epsilon = pow(0.999,self.total_trials) 
+        #self.epsilon = pow(0.999,self.total_trials) 
+        self.epsilon = math.cos(self.total_trials * 0.003)
         self.total_trials = self.total_trials+1
+        print('self.epsilon:',self.epsilon)
+        print('self.total_trials:',self.total_trials)
 
         if testing:
             self.epsilon = 0
@@ -61,7 +64,7 @@ class LearningAgent(Agent):
         waypoint = self.planner.next_waypoint() # The next waypoint 
         inputs = self.env.sense(self)           # Visual input - intersection light and traffic
         deadline = self.env.get_deadline(self)  # Remaining deadline
-        print('deadline:',deadline)
+        #print('deadline:',deadline)
         ########### 
         ## TO DO ##
         ###########
@@ -202,7 +205,7 @@ def run():
     #   verbose     - set to True to display additional output from the simulation
     #   num_dummies - discrete number of dummy agents in the environment, default is 100
     #   grid_size   - discrete number of intersections (columns, rows), default is (8, 6)
-    env = Environment(verbose=True,num_dummies=100,grid_size = (8, 6))
+    env = Environment(verbose=False,num_dummies=100,grid_size = (8, 6))
     
     ##############
     # Create the driving agent
@@ -210,7 +213,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent,learning=True,epsilon=1,alpha=0.3)
+    agent = env.create_agent(LearningAgent,learning=True,epsilon=1,alpha=0.4)
     
     ##############
     # Follow the driving agent
@@ -232,7 +235,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10,tolerance=0.21)
+    sim.run(n_test=10,tolerance=0.01)
 
 
 if __name__ == '__main__':
