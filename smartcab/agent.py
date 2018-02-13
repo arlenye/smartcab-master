@@ -61,7 +61,7 @@ class LearningAgent(Agent):
         waypoint = self.planner.next_waypoint() # The next waypoint 
         inputs = self.env.sense(self)           # Visual input - intersection light and traffic
         deadline = self.env.get_deadline(self)  # Remaining deadline
-
+        print('deadline:',deadline)
         ########### 
         ## TO DO ##
         ###########
@@ -84,9 +84,11 @@ class LearningAgent(Agent):
         ###########
         # Calculate the maximum Q-value of all actions for a given state
 
-        maxQ = sorted(self.Q[state],key=lambda x:self.Q[state][x])[-1]  #max(self.Q[state])
+        #maxQ = sorted(self.Q[state],key=lambda x:self.Q[state][x])[-1] 
+        #max(self.Q[state])
         #print('self.Q[state]:',self.Q[state])
         #print('maxQ:',maxQ)
+        maxQ = max(self.Q[state].values())
 
         return maxQ 
 
@@ -123,16 +125,36 @@ class LearningAgent(Agent):
         # When not learning, choose a random action
         # When learning, choose a random action with 'epsilon' probability
         #   Otherwise, choose an action with the highest Q-value for the current state
-        if not self.learning:
-            action = random.choice(self.valid_actions)
-        if self.learning:
-            if self.epsilon > 0.3680634882592229 :
-                action = random.choice(self.valid_actions)
-            else:
-                action = self.get_maxQ(state) 
+        #if not self.learning:
+        #    action = random.choice(self.valid_actions)
+        #if self.learning:
+        #    if self.epsilon > 0.3680634882592229 :
+        #        action = random.choice(self.valid_actions)
+        #    else:
+        #        action = self.get_maxQ(state) 
 
         #action = self.get_maxQ(state) 
         #print("action:",action)
+
+        #refer to : https://discussions.youdaxue.com/t/choose-action/43188
+        if not self.learning:
+            action = random.choice(self.valid_actions)
+        if self.learning:
+            #P[random.random() < epsilon] = epsilon
+            if random.random() < self.epsilon :
+                #choose a random action with 'epsilon' probability
+                #epsilon will decrease as the total_trials increase
+                #epsilon updated by a decay function  in self.reset
+                action = random.choice(self.valid_actions)
+            else:
+                #Otherwise, choose an action with the highest Q-value for the current state
+                max_q_value = self.get_maxQ(state)
+                max_value_actions = []
+                for action ,value in self.Q[state].items():
+                    if value == max_q_value:
+                        max_value_actions.append(action)
+                action = random.choice(max_value_actions)   # vs action = max_value_actions[0]
+
         return action
 
 
@@ -151,7 +173,7 @@ class LearningAgent(Agent):
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         if self.learning:
             self.Q[state][action] = (1-self.alpha) * self.Q[state][action] + self.alpha * reward
-            print("self.Q[state][action]",self.Q[state][action])
+            #print("self.Q[state][action]",self.Q[state][action])
 
         return
 
