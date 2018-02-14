@@ -107,7 +107,8 @@ class LearningAgent(Agent):
         #   Then, for each action available, set the initial Q-value to 0.0
         if self.learning:
             if(state not in self.Q):
-                self.Q[state]=dict.fromkeys(self.valid_actions,0.0)
+                #self.Q[state]=dict.fromkeys(self.valid_actions,0.0)
+                self.Q.setdefault(state, {action: 0.0 for action in self.valid_actions})
         #print("Q:",self.Q)
 
         return
